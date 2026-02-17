@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" type="image/x-icon" href="wallpaperflare.com_wallpaper.jpg">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دليل أمن الويب: SOP, CORS, CSP</title>
+
+</head>
+<body>
+
+<header>
+    <h1>دليل أمن المتصفحات </h1>
+    <p>شرح تفصيلي لـ SOP, CORS, CSP مع أمثلة عملية ومحاكاة للهجمات</p>
+</header>
+
+<nav>
+    <a href="#sop">SOP</a>
+    <a href="#cors">CORS</a>
+    <a href="#csp">CSP</a>
+    <a href="#quiz">اختبار (Quiz)</a>
+</nav>
+
+<div class="container">
+
+    <section id="sop" class="card">
+        <h2>1. Same-Origin Policy (SOP)</h2>
+        <p><strong>التعريف:</strong> هي سياسة أمنية أساسية في المتصفحات تمنع كود JavaScript في صفحة ويب من الوصول إلى بيانات صفحة أخرى إذا كانتا من "أصل" (Origin) مختلف.</p>
+        
+        <h3>ما هو الـ "Origin"؟</h3>
+        <p>يتكون الأصل من ثلاثة أجزاء مجتمعة:</p>
+        <ul>
+            <li>البروتوكول (Protocol): مثل <code>http</code> أو <code>https</code></li>
+            <li>المضيف (Host/Domain): مثل <code>google.com</code></li>
+            <li>المنفذ (Port): مثل <code>80</code>, <code>443</code>, <code>8080</code></li>
+        </ul>
+
+        <div class="interactive-box">
+            <h4>🛠️ أداة فحص الأصل (Interactive Simulation)</h4>
+            <p>أدخل رابطين لتعرف هل يعتبرهما المتصفح Same-Origin أم لا:</p>
+            <input type="text" id="url1" value="https://example.com/page1" style="width: 40%;">
+            <input type="text" id="url2" value="http://example.com/page2" style="width: 40%;">
+            <button onclick="checkSOP()">تحقق</button>
+            <div id="sop-result" class="result-box"></div>
+        </div>
+
+        <h3>لماذا نحتاج SOP؟ (السبب الأمني)</h3>
+        <p>بدون SOP، إذا قمت بفتح موقع خبيث (malicious.com) وأنت مسجل دخول في فيسبوك في تبويب آخر:</p>
+        <div class="vuln-alert">
+            <strong>السيناريو الكارثي:</strong> يمكن للموقع الخبيث قراءة رسائلك الخاصة في فيسبوك باستخدام AJAX/Fetch لأن المتصفح يرسل الكوكيز تلقائياً. الـ SOP يمنع هذا السلوك افتراضياً.
+        </div>
+    </section>
+
+    <section id="cors" class="card">
+        <h2>2. Cross-Origin Resource Sharing (CORS)</h2>
+        <p><strong>التعريف:</strong> هو آلية تسمح للخادم (Server) بتحديد من يُسمح له بالوصول إلى موارده من أصول (Origins) أخرى. هو ببساطة "استثناء" لقاعدة SOP.</p>
+
+        <h3>كيف يعمل CORS؟</h3>
+        <p>عندما يطلب المتصفح بيانات من دومين آخر، يضيف المتصفح تلقائياً هيدر: <code>Origin: https://my-site.com</code>.
+        يجب أن يرد السيرفر بـ: <code>Access-Control-Allow-Origin: https://my-site.com</code>.</p>
+
+        <h3>أمثلة برمجية (Node.js/Express)</h3>
+
+        <h4>❌ مثال 1: التكوين الخطير (Vulnerable Configuration)</h4>
+        <pre>
+app.use((req, res, next) => {
+    // خطير جداً! يسمح لأي موقع في العالم بقراءة بياناتك
+    res.header("Access-Control-Allow-Origin", "*"); 
+    res.header("Access-Control-Allow-Credentials", "true"); // هذا التركيب غالباً لا يعمل ولكنه يوضح النية
+    next();
+});
+        </pre>
+        <div class="vuln-alert">
+            <strong>الثغرة:</strong> السماح للكل <code>*</code> يعني أن أي موقع خبيث يمكنه استدعاء الـ API الخاص بك وسرقة البيانات إذا كانت عامة.
+        </div>
+
+        <h4>✅ مثال 2: التكوين الصحيح (Secure Configuration)</h4>
+        <pre>
+const whitelist = ['https://trusted-site.com', 'https://partner.com'];
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  }
+}
+app.use(cors(corsOptions));
+        </pre>
+
+        <h3>محاكاة طلب CORS</h3>
+        <div class="interactive-box">
+            <p>تخيل أنك في موقع <code>my-bank.com</code> وتحاول طلب API من سيرفر آخر.</p>
+            <label>إعدادات السيرفر (Access-Control-Allow-Origin):</label>
+            <select id="server-cors-setting">
+                <option value="*">Allow All (*)</option>
+                <option value="https://my-bank.com">https://my-bank.com (Match)</option>
+                <option value="https://google.com">https://google.com (Mismatch)</option>
+            </select>
+            <button onclick="simulateCORS()">أرسل الطلب (Fetch)</button>
+            <div id="cors-result" class="result-box"></div>
+        </div>
+    </section>
+
+    <section id="csp" class="card">
+        <h2>3. Content Security Policy (CSP)</h2>
+        <p><strong>التعريف:</strong> طبقة حماية إضافية تساعد في اكتشاف وتقليل أنواع معينة من الهجمات، أبرزها Cross-Site Scripting (XSS) وحقن البيانات.</p>
+        <p>يقوم الخادم بإرسال هيدر <code>Content-Security-Policy</code> ليخبر المتصفح: "لا تقم بتحميل أي سكربت أو صورة إلا من هذه المصادر فقط".</p>
+
+        <h3>أهمية CSP في الوقاية من XSS</h3>
+        <p>إذا نجح الهاكر في حقن كود خبيث في موقعك (مثل: <code>&lt;script&gt;stealCookies()&lt;/script&gt;</code>)، فإن الـ CSP سيمنع المتصفح من تنفيذ هذا الكود لأنه ليس في القائمة البيضاء.</p>
+
+        <h3>أمثلة عملية (Header Example)</h3>
+        <pre>
+Content-Security-Policy: default-src 'self'; script-src 'self' https://trusted-apis.com; img-src *;
+        </pre>
+        <ul>
+            <li><code>default-src 'self'</code>: اسمح بكل شيء من نفس الدومين فقط.</li>
+            <li><code>script-src ...</code>: اسمح بملفات JS من نفس الدومين ومن trusted-apis.com فقط.</li>
+            <li><code>img-src *</code>: اسمح بالصور من أي مكان.</li>
+        </ul>
+
+        <div class="interactive-box">
+            <h4>🛡️ محاكاة هجوم XSS مع CSP</h4>
+            <p>حاول حقن سكربت. سنفترض أننا قمنا بتفعيل سياسة: <code>script-src 'self'</code> (تمنع السكربتات الداخلية inline).</p>
+            
+            <div style="margin-bottom: 10px;">
+                <label><input type="checkbox" id="csp-toggle"> تفعيل CSP (Block Inline Scripts)</label>
+            </div>
+            
+            <textarea id="xss-input" rows="3" style="width:90%"><img src=x onerror=alert('XSS_Attack_Successful!')></textarea>
+            <button onclick="simulateXSS()">حقن الكود (Inject)</button>
+            
+            <div id="page-content" style="border:1px solid #555; padding:10px; margin-top:10px; min-height:50px;">
+                محتوى الصفحة...
+            </div>
+            <div id="csp-log" class="result-box"></div>
+        </div>
+    </section>
+
+    <section id="quiz" class="card">
+        <h2>اختبر معلوماتك (Security Quiz)</h2>
+        <div id="quiz-container">
+            </div>
+        <button onclick="submitQuiz()" style="margin-top: 20px; width: 100%;">عرض النتيجة</button>
+        <div id="quiz-score" class="result-box" style="text-align: center; font-size: 1.2rem;"></div>
+    </section>
+
+</div>
+
+<script src="main.js"></script>
+
+</body>
+</html>

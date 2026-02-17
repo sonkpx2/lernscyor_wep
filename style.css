@@ -1,0 +1,141 @@
+            :root {
+            --primary: #00bcd4;
+            --secondary: #ff4081;
+            --bg: #1e1e2f;
+            --card-bg: #27293d;
+            --text: #e0e0e0;
+            --code-bg: #15151a;
+            --success: #00e676;
+            --error: #ff5252;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1d8cf8 0%, #3358f4 100%);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        h1 { margin: 0; font-size: 2.5rem; }
+        h2 { border-right: 5px solid var(--primary); padding-right: 15px; margin-top: 2rem; color: var(--primary); }
+        h3 { color: var(--secondary); margin-top: 1.5rem; }
+
+        nav {
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 5px 15px;
+            border-radius: 20px;
+            transition: 0.3s;
+        }
+
+        nav a:hover { background: var(--primary); }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            background: rgba(255,255,255,0.1);
+            padding: 2px 5px;
+            border-radius: 4px;
+            color: var(--primary);
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border-left: 4px solid var(--secondary);
+            color: #bdc3c7;
+        }
+
+        .interactive-box {
+            border: 2px dashed var(--primary);
+            padding: 20px;
+            margin: 20px 0;
+            background: rgba(0, 188, 212, 0.05);
+            border-radius: 8px;
+        }
+
+        input, button, select {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            margin: 5px;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        button:hover { transform: scale(1.05); }
+
+        .result-box {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .success { background: rgba(0, 230, 118, 0.2); color: var(--success); }
+        .error { background: rgba(255, 82, 82, 0.2); color: var(--error); }
+
+        .quiz-option {
+            display: block;
+            background: rgba(255,255,255,0.05);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .quiz-option:hover { background: rgba(255,255,255,0.1); }
+        .correct-answer { background: var(--success) !important; color: black; }
+        .wrong-answer { background: var(--error) !important; color: white; }
+
+        .vuln-alert {
+            background: rgba(255, 64, 129, 0.1);
+            border: 1px solid var(--secondary);
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .vuln-alert strong { color: var(--secondary); }
+
